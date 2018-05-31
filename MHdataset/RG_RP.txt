@@ -1,0 +1,114 @@
+feature_tags = [‘chest_acc_X’, ‘chest_acc_Y’, "chest_acc_Z",
+                "elec_sign_1", "elec_sign_2",
+                "left_ankle_acc_X", "left_ankle_acc_Y", "left_ankle_acc_Z",
+                "left_ankle_gyro_X", "left_ankle_gyro_Y", "left_ankle_gyro_Z",
+                "left_ankle_mag_X", "left_ankle_mag_Y", "left_ankle_mag_Z",
+                "right_arm_acc_X", "right_arm_acc_Y", "right_arm_acc_Z",
+                "right_arm_gyro_X", "right_arm_gyro_Y", "right_arm_gyro_Z",
+                "right_arm_mag_X", "right_arm_mag_Y", "right_arm_mag_Z",
+                ]
+%features used for training
+train_x = load('chest_acc_X.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('chest_acc_X_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('chest_acc_Y.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('chest_acc_Y_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('chest_acc_Z.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('chest_acc_Z_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('left_ankle_acc_X.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('left_ankle_acc_X_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('left_ankle_acc_Y.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('left_ankle_acc_Y_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('left_ankle_acc_Z.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('left_ankle_acc_Z_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('left_ankle_gyro_X.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('left_ankle_gyro_X_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('left_ankle_gyro_Y.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('left_ankle_gyro_Y_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('left_ankle_gyro_Z.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('left_ankle_gyro_Z_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('left_ankle_mag_X.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('left_ankle_mag_X_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('left_ankle_mag_Y.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('left_ankle_mag_Y_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('left_ankle_mag_Z.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('left_ankle_mag_Z_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('right_arm_acc_X.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('right_arm_acc_X_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('right_arm_acc_Y.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('right_arm_acc_Y_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('right_arm_acc_Z.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('right_arm_acc_Z_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('right_arm_gyro_X.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('right_arm_gyro_X_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('right_arm_gyro_Y.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('right_arm_gyro_Y_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('right_arm_gyro_Z.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('right_arm_gyro_Z_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('right_arm_mag_X.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('right_arm_mag_X_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('right_arm_mag_Y.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('right_arm_mag_Y_perturbed.txt', output,'delimiter',' ')
+
+train_x = load('right_arm_mag_Z.txt');
+[ y ] = two_Gompertz( train_x);
+[ output ] = RP( y );
+dlmwrite('right_arm_mag_Z_perturbed.txt', output,'delimiter',' ')
