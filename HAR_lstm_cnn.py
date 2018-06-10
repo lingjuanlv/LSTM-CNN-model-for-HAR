@@ -125,7 +125,7 @@ def train(data_path):
                                                                             loss, accu))
             val_accu = 0.0
             for val_x, val_y in model.get_batch(val, True):
-                val_accu += model.step(sess, val_x, val_y, 1.0 , False) / val_batches
+                val_accu += model.step(sess, val_x, val_y, 0.0 , False) / val_batches
             logging.info("    eval accuracy {:4f}".format(val_accu))
 
             train_accuracies.append(accu)

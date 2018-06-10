@@ -50,7 +50,9 @@ class HAR(object):
         # RNN
         with tf.variable_scope("RNN", initializer=xavier_init):
             cells = [[tf.nn.rnn_cell.BasicLSTMCell(rnn_hidden) for _ in range(num_layers)] for _ in range(dirs)]
-            cells = [[tf.nn.rnn_cell.DropoutWrapper(cells[i][j], output_keep_prob=self.drop_rate) for j in range(num_layers)] for i in range(dirs)]
+            cells = [[tf.nn.rnn_cell.DropoutWrapper(cells[i][j], output_keep_prob=1-self.drop_rate) for j in range(num_layers)] for i in range(dirs)]
+            print(len(cells))
+            print(len(cells[0]))
             cells = [tf.nn.rnn_cell.MultiRNNCell(cells[i]) for i in range(dirs)]
             initial_state = [cells[i].zero_state(self.batch_size, dtype=dtype) for i in range(dirs)]
 
