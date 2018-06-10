@@ -8,6 +8,7 @@ Both HAR and MH training data have been randomly partitioned into 80% training s
 - tensorflow (r1.3 or higher)
 - python3
 
+# Experiments:
 How to run:
 Run LSTM-CNN model for different dataset as below:
 ```
@@ -15,6 +16,7 @@ HAR_lstm_cnn.py --data_type HAR
 HAR_lstm_cnn.py --data_type MH
 ```
 
+# Bibtex
 Remember to cite the following papers if you use any of the code:
 ```
 @inproceedings{lyu2017privacy,
