@@ -5,7 +5,7 @@ Another wearable dataset is the [Mobile Health (MH)](http://archive.ics.uci.edu/
 Both HAR and MH training data have been randomly partitioned into 80% training set, and 20% validation set.
 
 # Requirements:
-- tensorflow
+- tensorflow (r1.3 or higher)
 - python3
 
 How to run:
