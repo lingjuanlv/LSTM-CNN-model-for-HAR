@@ -38,71 +38,72 @@ class HAR(object):
                                             self.features],
                                      dtype=dtype)
         self.labels = tf.placeholder(shape=[self.batch_size], dtype=tf.int64)
-        self.dropout = tf.placeholder(dtype)
+        self.drop_rate = tf.placeholder(dtype)
 
-        xavier_init = tf.contrib.layers.xavier_initializer(seed=1)
+        xavier_init = tf.contrib.layers.xavier_initializer(seed=1234)
 
         if bidir:
-            num_cell = 2
+            dirs = 2
         else:
-            num_cell = 1
+            dirs = 1
 
         # RNN
         with tf.variable_scope("RNN", initializer=xavier_init):
-            cell = [tf.nn.rnn_cell.BasicLSTMCell(rnn_hidden, state_is_tuple=True) for _ in range(num_cell)]
-            cell = [tf.nn.rnn_cell.DropoutWrapper(cell[i], output_keep_prob=self.dropout) for i in range(num_cell)]
-            cell = [tf.nn.rnn_cell.MultiRNNCell([cell[i]] * num_layers, state_is_tuple=True) for i in range(num_cell)]
-            initial_state = [cell[i].zero_state(self.batch_size, dtype=dtype) for i in range(num_cell)]
+            cells = [[tf.nn.rnn_cell.BasicLSTMCell(rnn_hidden) for _ in range(num_layers)] for _ in range(dirs)]
+            cells = [[tf.nn.rnn_cell.DropoutWrapper(cells[i][j], output_keep_prob=self.drop_rate) for j in range(num_layers)] for i in range(dirs)]
+            cells = [tf.nn.rnn_cell.MultiRNNCell(cells[i]) for i in range(dirs)]
+            initial_state = [cells[i].zero_state(self.batch_size, dtype=dtype) for i in range(dirs)]
 
             if bidir:
-                rnn_outputs, _, _ = tf.nn.bidirectional_rnn(cell[0],
-                                                            cell[1],
-                                                            tf.unpack(self.inputs, axis=1),
-                                                            initial_state[0],
-                                                            initial_state[1])
+                rnn_outputs, _, _ = tf.nn.static_bidirectional_rnn(cells[0],
+                                                                   cells[1],
+                                                                   tf.unstack(self.inputs, axis=1),
+                                                                   initial_state[0],
+                                                                   initial_state[1])
                 rnn_hidden *= 2
             else:
-                rnn_outputs, _ = tf.nn.rnn(cell[0],
-                                                   tf.unpack(self.inputs, axis=1),
-                                                   initial_state[0])
+                rnn_outputs, _ = tf.nn.static_rnn(cells[0],
+                                                  tf.unstack(self.inputs, axis=1),
+                                                  initial_state[0])
+
 
         # CNN 
         with tf.variable_scope("CNN", initializer=xavier_init):
-            inputs = tf.transpose(tf.pack(rnn_outputs), perm=[1, 0, 2])
+            inputs = tf.stack(rnn_outputs, axis=1)
             inputs = tf.reshape(inputs, shape=[batch_size, steps, rnn_hidden, -1])
             n_grams = []
             for kernel, num in cnn_filter:
                 conv2_w = tf.get_variable("conv2_w_%d" % kernel,
                                           shape=[kernel, rnn_hidden, 1, num]) 
-                conv2_b = tf.get_variable("conv2_b_%d" % kernel, 
-                                          initializer=tf.zeros_initializer([num],
-                                                                           dtype=dtype))
+                conv2_b = tf.get_variable("conv2_b_%d" % kernel,
+                                          shape=[num],
+                                          initializer=tf.zeros_initializer())
 
                 cnn_layer1 = tf.nn.conv2d(inputs, conv2_w,
                                           strides=[1,1,1,1], padding='VALID') 
                 cnn_layer1 = tf.nn.relu(cnn_layer1 + conv2_b)
                 n_grams.append(tf.reduce_max(cnn_layer1, [1,2]))
 
-            cnn_outputs = tf.concat(1, n_grams)
+            cnn_outputs = tf.concat(n_grams, 1)
         with tf.variable_scope("output", initializer=xavier_init):
             output_units = cnn_outputs.get_shape().as_list()[1]
             self.output_w = tf.get_variable("output_w",
                                             shape=[output_units,
                                                    classes])
             output_b = tf.get_variable("output_b",
-                                       initializer=tf.zeros_initializer([classes],
-                                                                        dtype=dtype))
+                                       shape=[classes],
+                                       initializer=tf.zeros_initializer())
             outputs = tf.matmul(cnn_outputs, self.output_w) + output_b
-            pred = tf.nn.dropout(outputs, self.dropout)
+            pred = tf.nn.dropout(outputs, 1.-self.drop_rate)
 
-            self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(pred,
-                                                                                      self.labels))
+            self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=pred,
+                                                                                      labels=self.labels))
 
             correct_pred = tf.equal(tf.argmax(pred,1), self.labels)
             self.accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
         self.update = tf.train.AdamOptimizer(lr).minimize(self.loss)
-        self.saver = tf.train.Saver(tf.all_variables())
+        self.saver = tf.train.Saver(tf.global_variables())
 
     def get_batch(self, dataset, isTrain):
         if isTrain:
@@ -130,10 +131,10 @@ class HAR(object):
         weights = sess.run([self.Weights, self.conv2_w, self.output_w])
         return weights
 
-    def step(self, sess, inputs, labels, dropout, isTrain):
+    def step(self, sess, inputs, labels, drop_rate, isTrain):
         feed_dict = {self.inputs: inputs,
                      self.labels: labels,
-                     self.dropout: dropout}
+                     self.drop_rate: drop_rate}
         if isTrain:
             _, loss, accu = sess.run([self.update, self.loss, self.accuracy],
                                       feed_dict=feed_dict)

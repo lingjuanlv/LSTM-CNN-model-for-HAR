@@ -27,7 +27,7 @@ tf.app.flags.DEFINE_integer("num_layers", 1, "Layers for RNN")
 tf.app.flags.DEFINE_integer("epochs", 100, "How many epochs for training")
 tf.app.flags.DEFINE_integer("batch_size", 128, "Batch size for training")
 tf.app.flags.DEFINE_float("lr", 0.001, "Learning rate")
-tf.app.flags.DEFINE_float("dropout", 0.8, "Dropout percent")
+tf.app.flags.DEFINE_float("drop_rate", 0.2, "Dropout percent")
 tf.app.flags.DEFINE_boolean("bidir", False, "boolean; if set use bidirectional rnn")
 tf.app.flags.DEFINE_boolean("training", True, "boolean; if set train model")
 
@@ -68,13 +68,13 @@ def create_model(session, classes, steps, features, train_dir):
                                features,
                                FLAGS.lr,
                                bidir=FLAGS.bidir)
-    ckpt = tf.train.get_checkpoint_state(train_dir)
-    if ckpt and tf.gfile.Exists(ckpt.model_checkpoint_path):
-        print("Reading model parameters from %s" % ckpt.model_checkpoint_path)
-        model.saver.restore(session, ckpt.model_checkpoint_path)
-    else:
+    latest_ckpt = tf.train.latest_checkpoint(train_dir)
+    if not latest_ckpt:
         print("Created model with fresh parameters.")
-        session.run(tf.initialize_all_variables())
+        session.run(tf.global_variables_initializer())
+    else:
+        print("Reading model parameters from %s" % latest_ckpt)
+        model.saver.restore(session, latest_ckpt)
     return model
 
 def train(data_path):
@@ -108,7 +108,7 @@ def train(data_path):
 
     if not os.path.exists(train_dir):
         os.mkdir(train_dir)
-    checkpoint_path = os.path.join(train_dir, "training.ckpt")
+    # checkpoint_path = os.path.join(train_dir, "training.ckpt")
 
     with tf.Session() as sess:
         model = create_model(sess, classes, steps, features, train_dir)
@@ -116,7 +116,7 @@ def train(data_path):
             loss = 0.0
             accu = 0.0
             for batch_x, batch_y in model.get_batch(training, True):
-                batch_loss, batch_accu = model.step(sess, batch_x, batch_y, FLAGS.dropout, True)
+                batch_loss, batch_accu = model.step(sess, batch_x, batch_y, FLAGS.drop_rate, True)
                 loss += batch_loss / batches
                 accu += batch_accu / batches
                 step += 1
@@ -149,7 +149,7 @@ def main(_):
             "total_acc_z_"
         ]
 
-        DATASET_PATH = "data/"
+        DATASET_PATH = "HAR/"
 
         TRAIN = "train/"
         TEST = "test/"
